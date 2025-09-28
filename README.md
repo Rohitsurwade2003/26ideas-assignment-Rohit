@@ -1,73 +1,158 @@
-# Welcome to your Lovable project
+### `README.md`
 
-## Project info
+# AI Lead Qualifier & Outreach Micro-App
 
-**URL**: https://lovable.dev/projects/d0ed9ab3-5848-4ed8-818f-8bed682cc964
+## 📌 Project Overview
+This micro-app captures leads via a public website, scores and classifies them using OpenAI, stores them in a database (Supabase), triggers automation via n8n, and provides a lightweight admin dashboard for review and outreach.
 
-## How can I edit this code?
+**Core Use Case:**  
+A marketing page captures potential customer leads (name, email, company, problem statement). The system:
+- Scores intent and fit (High/Medium/Low + 0–100 score).
+- Classifies the use case theme.
+- Suggests a first outreach email.
+- Stores all data and events.
+- Notifies Slack or Email via n8n.
+- Lets an authenticated admin review leads and send outreach.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 🏗 Architecture Diagram
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d0ed9ab3-5848-4ed8-818f-8bed682cc964) and start prompting.
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+[Website (Lovable)]
+↓
+[Webhook A (n8n)] → [OpenAI API] → [Database (Supabase)]
+↓
+Slack / Email Notifications
 
-**Use your preferred IDE**
+[Admin Dashboard (Lovable)]
+↓
+[Webhook B (n8n)] → [OpenAI API] → [Mail Node / Database]
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+````
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## ⚙️ Setup Instructions
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Rohitsurwade2003/26ideas_assignment.git
+cd 26ideas_assignment
+````
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 2. Install Dependencies
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 3. Configure Environment Variables
+
+Copy `.env.example` to `.env` and fill in your actual keys:
+
+```bash
+cp .env.example .env
+```
+
+**Example `.env`:**
+
+```
+OPENAI_API_KEY=your_openai_api_key
+DATABASE_URL=your_database_url
+N8N_WEBHOOK_A=your_n8n_webhook_a
+N8N_WEBHOOK_B=your_n8n_webhook_b
+SLACK_OAUTH_TOKEN=your_slack_oauth_token
+PORT=3000
+NODE_ENV=development
+```
+
+### 4. Run the App
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app should now be running at:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+http://localhost:5173
+```
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🧪 Test Instructions
 
-## What technologies are used for this project?
+**Test Lead Submission:**
 
-This project is built with:
+1. Open the public lead capture page:
+   [Live Demo Link](https://26ideas-assignment-rohit.vercel.app/)
+2. Fill the form with sample data:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+   * Name: `John Doe`
+   * Email: `john@example.com`
+   * Company: `Example Inc.`
+   * Problem Statement: `We need to automate report generation.`
+3. Submit and verify the admin dashboard updates.
 
-## How can I deploy this project?
+**Test Admin Dashboard:**
 
-Simply open [Lovable](https://lovable.dev/projects/d0ed9ab3-5848-4ed8-818f-8bed682cc964) and click on Share -> Publish.
+* Login with admin credentials:
 
-## Can I connect a custom domain to my Lovable project?
+  * **Email:** `Admin@gmail.com`
+  * **Password:** `Admin@123`
+* Filter leads by score/status.
+* Click “Send Outreach” and check the automation flow in n8n.
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## ⚡ n8n Workflows
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+* **On New Lead**: Triggered when a lead is captured → Classifies lead → Stores in Supabase → Notifies Slack/email.
+* **Send Outreach**: Triggered when “Send Outreach” is clicked → Generates outreach via OpenAI → Sends email via Mail Node → Logs status in Supabase.
+
+*(Workflows are available as JSON exports in the repo.)*
+
+---
+
+## 📄 Known Limitations
+
+* Slack integration requires OAuth2 token.
+* Company enrichment is mocked (no real API).
+* No retry queue for failed outreach.
+* Basic admin authentication only.
+
+---
+
+## 📁 Repo Structure
+
+```
+.
+├── src/                   # Lovable frontend source
+├── supabase/             # Database migrations and config
+├── .env.example          # Example environment variables
+├── README.md             # Project documentation
+└── package.json          # Node project config
+```
+
+---
+
+## 🌐 Live Demo
+
+[https://26ideas-assignment-rohit.vercel.app/](https://26ideas-assignment-rohit.vercel.app/)
+
+---
+
+## 📜 License
+
+This project is submitted as part of the AI Lead Qualifier & Outreach Micro-App assignment.
+
+```
+
+---
+
+If you want, I can now **give you the exact copy-paste content for README.md and the command to add it directly to your repo** so your submission is fully ready.  
+
+Do you want me to do that?
+```
