@@ -148,11 +148,3 @@ http://localhost:5173
 
 This project is submitted as part of the AI Lead Qualifier & Outreach Micro-App assignment.
 
-```
-
----
-
-If you want, I can now **give you the exact copy-paste content for README.md and the command to add it directly to your repo** so your submission is fully ready.  
-
-Do you want me to do that?
-```
