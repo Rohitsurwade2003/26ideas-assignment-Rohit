@@ -1,0 +1,251 @@
+{
+  "name": "Send Outreach",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d7bb661c-64d3-4b45-8b45-5dd0ecfeefbc",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0539e2b1-31fa-4381-8fa8-d248f67eb726",
+      "name": "Webhook",
+      "webhookId": "d7bb661c-64d3-4b45-8b45-5dd0ecfeefbc"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "leads",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.body.lead_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "cf98db18-5709-4651-8595-b52d595fd257",
+      "name": "Get a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "vBb1O4ZghDwDy2IO",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a concise SDR. Write a 90–120 word first-touch email referencing the lead’s message.\nTone: friendly, crisp, specific. End with one concrete next step (15-min call or async demo). Make sure there is no variable in mail footer should only contain name i.e 26ideas",
+              "role": "system"
+            },
+            {
+              "content": "=Lead details:\nName: {{$json[\"name\"]}}\nCompany: {{$json[\"company\"]}}\nProblem: {{$json[\"problem_text\"]}}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        416,
+        0
+      ],
+      "id": "00b182f7-086b-475d-ae3a-e4618ca738cc",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TMe7AYLRa52TMf7H",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Get a row').item.json.email }}",
+        "subject": "={{ $json.message.content.email.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.message.content.email.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        768,
+        0
+      ],
+      "id": "35765fea-5acb-4df8-8e6a-0ae9eea8fbe3",
+      "name": "Send a message",
+      "webhookId": "f6444ed6-ca20-455c-880d-a497008c9b57",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lc3iupFRxfuV4vgG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "leads",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.body.lead_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.labelIds[0] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        976,
+        0
+      ],
+      "id": "d78e7910-8236-4adc-a6fe-4b9a60d1e700",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "vBb1O4ZghDwDy2IO",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "ideas26.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36",
+            "content-length": "50",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "2409:40c2:103f:75a5:f97e:905a:9627:cd5e",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IN",
+            "cf-ray": "9863bf68247ffce3-SIN",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "origin": "https://preview--prospect-qualify-bot.lovable.app",
+            "priority": "u=1, i",
+            "referer": "https://preview--prospect-qualify-bot.lovable.app/",
+            "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+            "sec-ch-ua-mobile": "?1",
+            "sec-ch-ua-platform": "\"Android\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "2409:40c2:103f:75a5:f97e:905a:9627:cd5e, 162.158.108.13",
+            "x-forwarded-host": "ideas26.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-17-7798f56955-9mh8j",
+            "x-is-trusted": "yes",
+            "x-real-ip": "2409:40c2:103f:75a5:f97e:905a:9627:cd5e"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "lead_id": "c21e2466-51db-4d38-a895-d759d0f2bd9d"
+          },
+          "webhookUrl": "https://ideas26.app.n8n.cloud/webhook/d7bb661c-64d3-4b45-8b45-5dd0ecfeefbc",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e72d1f3f-d80d-4ae4-afba-1469fe35cda2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a3e64747de5b4de1a6381e3487be3f3af98739b1ef1e96a974c949f0e111faed"
+  },
+  "id": "7xvFve6qCbpqbX5F",
+  "tags": []
+}

@@ -1,0 +1,277 @@
+{
+  "name": "New Lead",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "064f811e-f2ca-4a25-b2de-866ceedc71be",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0f54a1ca-4979-48e0-a772-92e8b6856c34",
+      "name": "Webhook",
+      "webhookId": "064f811e-f2ca-4a25-b2de-866ceedc71be"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an SDR assistant. Given a lead’s problem statement and basic metadata, output:\n- use_case_label (choose one: Internal automation, Customer support, Data processing, Sales ops, Other)\n- fit_score (0–100)\n- fit_band (High/Medium/Low)\n- rationale (1–2 sentences tuned for automation viability within 4 weeks)\nRespond ONLY in valid JSON.",
+              "role": "system"
+            },
+            {
+              "content": "={\n  \"name\": \"{{ $json.body.name }}\",\n  \"email\": \"{{ $json.body.email }}\",\n  \"company\": \"{{ $json.body.company }}\",\n  \"website\": \"{{ $json.body.website }}\",\n  \"problem_statement\": \"{{ $json.body.problem_text }}\"\n}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        224,
+        0
+      ],
+      "id": "635b6c16-a2f6-4217-9ff4-a1c4d40ed5eb",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TMe7AYLRa52TMf7H",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "leads",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $('Webhook').item.json.body.name }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('Webhook').item.json.body.email }}"
+            },
+            {
+              "fieldId": "company",
+              "fieldValue": "={{ $('Webhook').item.json.body.company }}"
+            },
+            {
+              "fieldId": "website",
+              "fieldValue": "={{ $('Webhook').item.json.body.website }}"
+            },
+            {
+              "fieldId": "problem_text",
+              "fieldValue": "={{ $('Webhook').item.json.body.problem_text }}"
+            },
+            {
+              "fieldId": "fit_score",
+              "fieldValue": "={{ $json.message.content.fit_score }}"
+            },
+            {
+              "fieldId": "fit_band",
+              "fieldValue": "={{ $json.message.content.fit_band }}"
+            },
+            {
+              "fieldId": "use_case_label",
+              "fieldValue": "={{ $json.message.content.use_case_label }}"
+            },
+            {
+              "fieldId": "rationale",
+              "fieldValue": "={{ $json.message.content.rationale }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        576,
+        0
+      ],
+      "id": "4cc333a5-d976-41d6-9588-d98aca3ce14c",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "vBb1O4ZghDwDy2IO",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09HPAHET7W",
+          "mode": "list",
+          "cachedResultName": "new-lead"
+        },
+        "text": "=🎉 New Lead Received! Name: {{$json.name}}\nCompany: {{$json.company}}\nProblem: {{$json.problem_text}}\nLabel: {{$json.use_case_label}}\nFit Score: {{$json.fit_score}} ({{$json.fit_band}})  ",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        800,
+        0
+      ],
+      "id": "0ae6336b-a52b-4f39-9db3-154d5e6387fb",
+      "name": "Send a message",
+      "webhookId": "e69df970-78ad-4ff5-87a9-d28232af7c34",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "VVhFgtZ4X9inGhBA",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "rohitsurwade2003@gmail.com",
+        "subject": "=New AI-Qualified Lead: {{ $('Webhook').item.json.body.name }} from {{ $('Webhook').item.json.body.company }}",
+        "message": "=<!DOCTYPE html> <html lang=\"en\"> <head>     <meta charset=\"UTF-8\">     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">     <style>         body {             font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\";             line-height: 1.6;             color: #333;             background-color: #f9f9f9;             margin: 0;             padding: 20px;         }        .container {             max-width: 600px;             margin: 0 auto;             background-color: #ffffff;             border: 1px solid #e0e0e0;             border-radius: 8px;             overflow: hidden;         }        .header {             background-color: #0052cc;             color: #ffffff;             padding: 20px;             text-align: center;         }        .header h1 {             margin: 0;             font-size: 24px;         }        .content {             padding: 20px;         }        .lead-details,.ai-analysis {             margin-bottom: 20px;         }        .lead-details h2,.ai-analysis h2,.problem-statement h2 {             font-size: 18px;             color: #0052cc;             border-bottom: 2px solid #e0e0e0;             padding-bottom: 5px;             margin-top: 0;         }        .lead-details ul {             list-style-type: none;             padding: 0;         }        .lead-details li {             padding: 8px 0;             border-bottom: 1px solid #f0f0f0;         }        .lead-details li strong {             display: inline-block;             width: 120px;             color: #555;         }        .rationale {             background-color: #f4f4f9;             border-left: 4px solid #0052cc;             padding: 15px;             margin: 15px 0;             font-style: italic;         }        .problem-statement p {             background-color: #fafafa;             padding: 15px;             border-radius: 4px;             border: 1px solid #eee;         }        .cta-button {             display: block;             width: fit-content;             margin: 20px auto 0;             padding: 12px 25px;             background-color: #0052cc;             color: #ffffff;             text-decoration: none;             border-radius: 5px;             font-weight: bold;             text-align: center;         }        .footer {             background-color: #f0f0f0;             text-align: center;             padding: 15px;             font-size: 12px;             color: #777;         }     </style> </head> <body>     <div class=\"container\">         <div class=\"header\">             <h1>New AI-Qualified Lead</h1>         </div>         <div class=\"content\">             <div class=\"lead-details\">                 <h2>Lead Details</h2>                 <ul>                     <li><strong>Name:</strong> {{ $('Webhook').item.json.body.name }}</li>                     <li><strong>Company:</strong> {{ $('Webhook').item.json.body.company }}</li>                     <li><strong>Email:</strong> {{ $('Webhook').item.json.body.email }}</li>                     <li><strong>Website:</strong> {{ $('Webhook').item.json.body.website }}</li>                 </ul>             </div>              <div class=\"ai-analysis\">                 <h2>AI Analysis</h2>                 <ul>                     <li><strong>Fit Score:</strong> {{ $('Message a model').item.json.message.content.fit_score }} / 100</li>                     <li><strong>Fit Band:</strong>{{ $('Message a model').item.json.message.content.fit_band }} </li>                     <li><strong>Use Case:</strong> {{ $('Message a model').item.json.message.content.use_case_label }}</li>                 </ul>                 <div class=\"rationale\">                     <p><strong>Rationale:</strong> {{ $('Message a model').item.json.message.content.rationale }}</p>                 </div>             </div>              <div class=\"problem-statement\">                 <h2>Original Problem Statement</h2>                 <p>{{ $('Webhook').item.json.body.problem_text }}</p>             </div>                       </div>         <div class=\"footer\">             <p>This is an automated notification from the AI Lead Qualifier.</p>         </div>     </div> </body> </html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "aaf9c6d9-abf2-4db6-96e4-ee2ca094e65d",
+      "name": "Send a message1",
+      "webhookId": "66e020de-6bf5-454b-b108-95cc74477ee5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lc3iupFRxfuV4vgG",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "ideas26.app.n8n.cloud",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+            "content-length": "406",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "150.107.20.173",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IN",
+            "cf-ray": "986258e4b42a405b-BOM",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "origin": "https://preview--prospect-qualify-bot.lovable.app",
+            "priority": "u=1, i",
+            "referer": "https://preview--prospect-qualify-bot.lovable.app/",
+            "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"macOS\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "150.107.20.173, 172.69.95.96",
+            "x-forwarded-host": "ideas26.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-17-7798f56955-9mh8j",
+            "x-is-trusted": "yes",
+            "x-real-ip": "150.107.20.173"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "name": "Alex Chen",
+            "email": "alex.chen@innovatech.com",
+            "company": "Innovatech Solutions",
+            "website": "https://innovatech.com",
+            "problem_text": "Our sales team spends too much time manually updating our CRM after calls. We need a way to automatically log call notes, update deal stages, and schedule follow-up tasks. This is slowing down our ability to close deals and we need a solution within the next month."
+          },
+          "webhookUrl": "https://ideas26.app.n8n.cloud/webhook/064f811e-f2ca-4a25-b2de-866ceedc71be",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "81b6f9d5-7961-4825-98a5-e85455147a07",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a3e64747de5b4de1a6381e3487be3f3af98739b1ef1e96a974c949f0e111faed"
+  },
+  "id": "B218vRXPj275qB1a",
+  "tags": []
+}
